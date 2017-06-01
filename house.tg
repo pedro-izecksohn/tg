@@ -1,0 +1,30 @@
+# By: Pedro and Ricardo
+# First the square:
+U
+F 0.05
+D
+T -90
+F 0.05
+R 3
+T -90
+F 0.1
+E
+T -90
+F 0.05
+# Now the triangle:
+F 0.05
+T 120
+F 0.1
+T 120
+F 0.1
+# Now the door:
+T 30
+F 0.1
+T 90
+F 0.0375
+T 90
+F 0.066
+T -90
+F 0.025
+T -90
+F 0.066

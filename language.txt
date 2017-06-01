@@ -1,0 +1,71 @@
+About: This document specifies the Turtle Graphics language.
+Version: 2017-Jun-01 19:12
+Author: Pedro Izecksohn
+Copyright: Public domain to be standardized.
+
+Any document using the Turtle Graphics language to describe a drawing should
+use .tg at the end of its file name.
+
+Introduction:
+
+  1) The screen measures 1 by 1.
+  2) The decimal point is the . .
+  3) In .tg files the angles must be in degrees.
+  4) 90 degrees is down. 0 degrees is right.
+  5) Turtle's initial angle is -90 degrees that is up.
+  6) Turtle's initial coordinates are 0.5,0.5.
+  7) All commands are composed by a single upper case letter or symbol.
+  Some commands are followed by a space followed by an integer or by a 
+  double precision number. Some commands are followed by a space followed by
+  a string that continues until the line-feed character.
+
+Commands:
+
+A a
+Set angle to a degrees.
+
+T t
+Turn the turtle t degrees.
+
+X x
+Set position.x to x.
+
+Y y
+Set position.y to y.
+
+F n
+Walks forward n.
+
+U
+Pen up. IOW: Stops of drawing.
+
+D
+Pen down. IOW: Restarts to draw. Also draws that pixel where the pen is.
+
+R n
+Repeats n times the next lines until E.
+
+E
+Ends a block started by R.
+
+C c
+Sets the color to c where c is an integer that fits in 8 bits. The default
+color is 255.
+
+# comment
+Inserts the comment comment. Just the first comment is written in the PGM.
+
+P p
+Since version 005 the usage of P is deprecated.
+On version 004 it sets the step_length of F to p. The default step_length is
+ 0.001.
+On version 005 the step_length is automatically set for continuos lines.
+
+B
+Prints debugging information to stdout. The result of this command is 
+implementation dependent.
+
+Historic Information:
+
+  The version 004 is the last version in Python written by Pedro Izecksohn.
+  The version 005 is the first C version written by Pedro Izecksohn.
