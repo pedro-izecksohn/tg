@@ -1,14 +1,11 @@
 // tg.c - old tg.py - A simple Turtle Graphics that exports a PGM.
 // By: Pedro Izecksohn
-// Version: 2017-Jun-01 20:12
+// Version: 2021/April/24 16:44
 // License:
-//          1) This file is in public domain.
-//          2) The user must be warned that the executable tg:
-//             a) may, in some rare cases, overwrite a file;
-//             b) may fill the computer's storage device;
-//             c) may fill the computer's RAM;
-//             d) may take too much time and too many CPU cycles;
-//             e) may fail for any of the above reasons.
+// 1) This software while in source code format may be freely distributed.
+//    To be able to distribute this software in executable format you must buy a commercial license from Pedro Izecksohn.
+//    You may modify this software if you distribute it under this same license.
+// 2) This software may damage your hardware and or overwrite your file. So be carefull. Read the source code for more details.
 
 #include <assert.h>
 #include <ctype.h>
@@ -39,9 +36,11 @@ PGM *new_PGM (const unsigned int width, const unsigned int height)
     ret->width = width;
     ret->height = height;
     if (!(ret->ba = malloc (((size_t)width)*height))) {free (ret); return NULL;}
-    for (unsigned int y=0; y<height; ++y)
+    unsigned int y = 0;
+    for (; y<height; ++y)
     {
-      for (unsigned int x=0; x<width; ++x)
+      unsigned int x=0;
+      for (; x<width; ++x)
       {
         ret->ba [x+(y*width)] = 0;
       }
