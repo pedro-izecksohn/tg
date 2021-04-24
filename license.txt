@@ -1,0 +1,6 @@
+License:
+1) This software while in source code format may be freely distributed. To be able to distribute this software in executable format you must buy a commercial license from Pedro Izecksohn. You may modify this software if you distribute it under this same license.
+2) This software may damage your hardware and or overwrite your file. So be carefull. Read the source code for more details.
+
+
+
