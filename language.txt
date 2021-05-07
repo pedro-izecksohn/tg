@@ -1,5 +1,5 @@
 About: This document specifies the Turtle Graphics language.
-Version: 2017-Jun-01 19:12
+Version: 2021-April-26 15:53
 Author: Pedro Izecksohn
 Copyright: Public domain to be standardized.
 
@@ -7,31 +7,39 @@ Any document using the Turtle Graphics language to describe a drawing should
 use .tg at the end of its file name.
 
 Introduction:
-
-  1) The screen measures 1 by 1.
-  2) The decimal point is the . .
-  3) In .tg files the angles must be in degrees.
-  4) 90 degrees is down. 0 degrees is right.
-  5) Turtle's initial angle is -90 degrees that is up.
-  6) Turtle's initial coordinates are 0.5,0.5.
-  7) All commands are composed by a single upper case letter or symbol.
-  Some commands are followed by a space followed by an integer or by a 
-  double precision number. Some commands are followed by a space followed by
-  a string that continues until the line-feed character.
+1) The screen measures 1 by 1.
+2) The decimal point is the . .
+3) In .tg files the angles must be in degrees.
+4) 90 degrees is down. 0 degrees is right.
+5) Turtle's initial angle is -90 degrees that is up.
+6) Turtle's initial coordinates are 0.5,0.5.
+7) In historical tg, all commands were composed by a single upper case letter or symbol.
+In this version, the historical commands are kept but the modern commands are words,
+ended by a space.
+8) Commands are lines containing words, being the first word the name of the command.
+   The others words may be integers, doubles or a name.
+   The words are separated by spaces or tabs.
+9) The initial background color is 0 that is black.
+   The initial background color may be changed by a command line argument.
+10) In the current working version, each color is an integer between 0 and 255.
+    In future versions, colors will be composed of 3 integers representing red green blue.
 
 Commands:
 
 A a
-Set angle to a degrees.
+Sets turtle's angle to a degrees.
+
+B c
+Sets background color to c. Paints all pixels that are the same color of the old background.
 
 T t
-Turn the turtle t degrees.
+Turns the turtle t degrees.
 
 X x
-Set position.x to x.
+Sets position.x to x.
 
 Y y
-Set position.y to y.
+Sets position.y to y.
 
 F n
 Walks forward n.
@@ -49,8 +57,9 @@ E
 Ends a block started by R.
 
 C c
-Sets the color to c where c is an integer that fits in 8 bits. The default
-color is 255.
+Sets the color to c where c is an integer that fits in 8 bits.
+The default color is 255.
+The initial foreground color may be changed by a command line argument.
 
 # comment
 Inserts the comment comment. Just the first comment is written in the PGM.
@@ -58,14 +67,32 @@ Inserts the comment comment. Just the first comment is written in the PGM.
 P p
 Since version 005 the usage of P is deprecated.
 On version 004 it sets the step_length of F to p. The default step_length is
- 0.001.
+0.001.
 On version 005 the step_length is automatically set for continuos lines.
 
 B
-Prints debugging information to stdout. The result of this command is 
+Prints debugging information to stdout. The result of this command is
 implementation dependent.
 
-Historic Information:
+OVERLAY width height filename.tg bgcolor fgcolor
+Overlays a portion of the current drawing by filename.tg.
+The portion to be overlayed is at right down of the current position
+width and height must be greater than 0 and lesser than 1.
+bgcolor overwrites the initial backgroud color.
+fgcolor overwrites the initial foreground color.
 
-  The version 004 is the last version in Python written by Pedro Izecksohn.
-  The version 005 is the first C version written by Pedro Izecksohn.
+STORE $name
+Stores the current position in the variable $name.
+Variables are not delimited by R ... E blocks.
+Every variable name must begin with a dollar sign.
+
+LOAD $name
+Loads the content of $name to the current position.
+
+LINE $name
+Draws a line from current position until the position stored at $name.
+Changes the current angle.
+
+Historic Information:
+The version 004 is the last version in Python written by Pedro Izecksohn.
+The version 005 is the first C version written by Pedro Izecksohn.
