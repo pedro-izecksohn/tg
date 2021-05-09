@@ -1,17 +1,17 @@
-TGs = blank.tg circle.tg comments.tg cross.tg diagonal.tg gray.tg hexagon.tg house.tg square.tg triangle.tg underflow.tg
+TGs = blank.tg circle.tg comments.tg cross.tg diagonal.tg gray.tg hexagon.tg house.tg square.tg triangle.tg tripofobia.tg underflow.tg
 
 all : tg.tgz tg tests
 
-tg.tgz : Makefile language.txt tg.c $(TGs)
+tg.tgz : Makefile language.txt license.txt tg.c $(TGs)
 	tar -czvf tg.tgz $(TGs) language.txt tg.c Makefile
 
 tg : tg.c
 	gcc -Wall tg.c -lm -o tg
 
-tests : blank.pgm circle.pgm comments.pgm cross.pgm diagonal.pgm gray.pgm hexagon.pgm house.pgm square.pgm triangle.pgm underflow.pgm
+tests : blank.pgm circle.pgm comments.pgm cross.pgm diagonal.pgm gray.pgm hexagon.pgm house.pgm square.pgm triangle.pgm tripofobia.pgm underflow.pgm
 
 blank.pgm : blank.tg
-	cat blank.tg | ./tg 10 10 blank.pgm
+	cat blank.tg | ./tg 100 100 blank.pgm
 
 circle.pgm : circle.tg
 	cat circle.tg | ./tg 500 500 circle.pgm
@@ -42,3 +42,8 @@ triangle.pgm : triangle.tg
 
 underflow.pgm : underflow.tg
 	-cat underflow.tg | ./tg 10 10 underflow.pgm
+
+tripofobia.pgm: tripofobia.tg
+	cat tripofobia.tg | ./tg 640 480 tripofobia.pgm
+
+
