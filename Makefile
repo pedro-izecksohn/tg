@@ -10,40 +10,41 @@ tg : tg.c
 
 tests : blank.pgm circle.pgm comments.pgm cross.pgm diagonal.pgm gray.pgm hexagon.pgm house.pgm square.pgm triangle.pgm tripofobia.pgm underflow.pgm
 
-blank.pgm : blank.tg
+clean:
+	-rm tg blank.pgm circle.pgm comments.pgm cross.pgm diagonal.pgm gray.pgm hexagon.pgm house.pgm square.pgm triangle.pgm tripofobia.pgm underflow.pgm
+
+blank.pgm : tg.c blank.tg
 	cat blank.tg | ./tg 100 100 blank.pgm
 
-circle.pgm : circle.tg
+circle.pgm : tg.c circle.tg
 	cat circle.tg | ./tg 500 500 circle.pgm
 
-comments.pgm : comments.tg
+comments.pgm : tg.c comments.tg
 	cat comments.tg | ./tg 10 10 comments.pgm
 
-cross.pgm : cross.tg
+cross.pgm : tg.c cross.tg
 	cat cross.tg | ./tg 500 500 cross.pgm
 
-diagonal.pgm : diagonal.tg
+diagonal.pgm : tg.c diagonal.tg
 	cat diagonal.tg | ./tg 500 500 diagonal.pgm
 
-gray.pgm : gray.tg
+gray.pgm : tg.c gray.tg
 	cat gray.tg | ./tg 500 500 gray.pgm
 
-hexagon.pgm : hexagon.tg
+hexagon.pgm : tg.c hexagon.tg
 	cat hexagon.tg | ./tg 500 500 hexagon.pgm
 
-house.pgm : house.tg
+house.pgm : tg.c house.tg
 	cat house.tg | ./tg 500 500 house.pgm
 
-square.pgm : square.tg
+square.pgm : tg.c square.tg
 	cat square.tg | ./tg 500 500 square.pgm
 
-triangle.pgm : triangle.tg
+triangle.pgm : tg.c triangle.tg
 	cat triangle.tg | ./tg 500 500 triangle.pgm
 
-underflow.pgm : underflow.tg
+underflow.pgm : tg.c underflow.tg
 	-cat underflow.tg | ./tg 10 10 underflow.pgm
 
-tripofobia.pgm: tripofobia.tg
+tripofobia.pgm: tg.c tripofobia.tg
 	cat tripofobia.tg | ./tg 640 480 tripofobia.pgm
-
-
