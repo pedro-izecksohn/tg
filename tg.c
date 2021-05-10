@@ -1,6 +1,6 @@
 // tg.c - old tg.py - A simple Turtle Graphics that exports a PGM.
 // By: Pedro Izecksohn
-// Version: 2021/April/24 16:44
+// Version: 2021/May/10 16:49
 // License:
 // 1) This software while in source code format may be freely distributed.
 //    To be able to distribute this software in executable format you must buy a commercial license from Pedro Izecksohn.
@@ -29,29 +29,39 @@ typedef struct PGM
 
 const char * const default_comment = "";
 
-PGM *new_PGM (const unsigned int width, const unsigned int height)
+PGM *new_PGM (const unsigned int width, const unsigned int height, const unsigned char background_color)
 {
   PGM *ret = malloc (sizeof(PGM));
-  if (!ret) return ret;
-    ret->width = width;
-    ret->height = height;
-    if (!(ret->ba = malloc (((size_t)width)*height))) {free (ret); return NULL;}
-    unsigned int y = 0;
-    for (; y<height; ++y)
-    {
-      unsigned int x=0;
-      for (; x<width; ++x)
-      {
-        ret->ba [x+(y*width)] = 0;
-      }
-    }
-    ret->comment = default_comment;
+  if (!ret)
+  {
+    fprintf (stderr, "Inside new_PGM: malloc returned NULL.\n");
     return ret;
+  }
+  ret->width = width;
+  ret->height = height;
+  ret->ba = malloc (((size_t)width)*height);
+  if (!ret->ba)
+  {
+    fprintf (stderr, "Inside new_PGM: ret->ba could not be allocated: malloc returned NULL.\n");
+    free (ret);
+    return NULL;
+  }
+  unsigned int y = 0;
+  for (; y<height; ++y)
+  {
+    unsigned int x=0;
+    for (; x<width; ++x)
+    {
+      ret->ba [x+(y*width)] = background_color;
+    }
+  }
+  ret->comment = default_comment;
+  return ret;
 }
 
 void PGM_turn (PGM * const self, const Point point, const unsigned char value)
 {
-  unsigned long int x = point.x, y = point.y;
+  const unsigned long int x = point.x, y = point.y;
   //fprintf (stderr, "PGM_turn (%p, (%lu,%lu), %hhu);\n", self, x, y, value);
   if (x >= self->width) return;
   if (y >= self->height) return;
@@ -60,25 +70,40 @@ void PGM_turn (PGM * const self, const Point point, const unsigned char value)
 
 void PGM_write (const PGM * const self, FILE * const f)
 {
-  assert (self->comment);
-  fprintf (f, "P5\n# %s\n%u %u\n255\n", self->comment, self->width, self->height);
+  const char * comment = "";
+  if (self->comment)
+  {
+    comment = self->comment;
+  }
+  fprintf (f, "P5\n# %s\n%u %u\n255\n", comment, self->width, self->height);
   fwrite (self->ba, 1, self->width*self->height, f);
 }
 
 typedef struct Screen
 {
   unsigned int width, height;
+  unsigned char background_color;
   PGM *pgm;
 } Screen;
 
-Screen *new_Screen (unsigned int width, unsigned int height)
+Screen *new_Screen (unsigned int width, unsigned int height, unsigned char background_color)
 {
   Screen *ret = malloc (sizeof(Screen));
-  if (!ret) return ret;
+  if (!ret)
+  {
+    fprintf (stderr, "Inside new_Screen: malloc returned NULL.\n");
+    return ret;
+  }
   ret->width = width;
   ret->height = height;
-  ret->pgm = new_PGM (width, height);
-  if (!ret->pgm) {free (ret); return NULL;}
+  ret->background_color = background_color;
+  ret->pgm = new_PGM (width, height, background_color);
+  if (!ret->pgm)
+  {
+    fprintf (stderr, "Inside new_Screen: new_PGM returned NULL.\n");
+    free (ret);
+    return NULL;
+  }
   return ret;
 }
 
@@ -417,7 +442,7 @@ int main (int argc, char ** argv)
     printf ("cat file.tg | tg width height file.pgm");
     exit (EXIT_FAILURE);
   }
-  const Screen * const screen = new_Screen (atoi(argv[1]), atoi(argv[2]));
+  const Screen * const screen = new_Screen (atoi(argv[1]), atoi(argv[2]), 0);
   const char * const fname = argv[3];
   if (fopen (fname, "rb"))
   {
