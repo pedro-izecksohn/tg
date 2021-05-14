@@ -1,6 +1,6 @@
 // tg.c - old tg.py - A simple Turtle Graphics that exports a PGM.
 // By: Pedro Izecksohn
-// Version: 2021/May/10 16:49
+// Version: 2021/May/13 16:22
 // License:
 // 1) This software while in source code format may be freely distributed.
 //    To be able to distribute this software in executable format you must buy a commercial license from Pedro Izecksohn.
@@ -59,10 +59,10 @@ PGM *new_PGM (const unsigned int width, const unsigned int height, const unsigne
   return ret;
 }
 
-void PGM_turn (PGM * const self, const Point point, const unsigned char value)
+void PGM_draw_point (PGM * const self, const Point point, const unsigned char value)
 {
   const unsigned long int x = point.x, y = point.y;
-  //fprintf (stderr, "PGM_turn (%p, (%lu,%lu), %hhu);\n", self, x, y, value);
+  //fprintf (stderr, "PGM_draw_point (%p, (%lu,%lu), %hhu);\n", self, x, y, value);
   if (x >= self->width) return;
   if (y >= self->height) return;
   self->ba [x+(y*self->width)] = value;
@@ -70,7 +70,7 @@ void PGM_turn (PGM * const self, const Point point, const unsigned char value)
 
 void PGM_write (const PGM * const self, FILE * const f)
 {
-  const char * comment = "";
+  const char * comment = default_comment;
   if (self->comment)
   {
     comment = self->comment;
@@ -114,7 +114,7 @@ void Screen_turn (Screen * const self, const Point point, const unsigned char co
   real.x = point.x*self->width;
   real.y = point.y*self->height;
   //fprintf (stderr, "%lf,%lf = %d,%d\n", point.x, point.y, (int)real.x, (int)real.y);
-  PGM_turn (self->pgm, real, color);
+  PGM_draw_point (self->pgm, real, color);
 }
 
 typedef struct Command
