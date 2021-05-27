@@ -1,6 +1,6 @@
 // tg.c - old tg.py - A simple Turtle Graphics that exports a PGM.
 // By: Pedro Izecksohn
-// Version: 2021/May/13 16:22
+// Version: 2021/May/27 17:33
 // License:
 // 1) This software while in source code format may be freely distributed.
 //    To be able to distribute this software in executable format you must buy a commercial license from Pedro Izecksohn.
@@ -107,9 +107,9 @@ Screen *new_Screen (unsigned int width, unsigned int height, unsigned char backg
   return ret;
 }
 
-void Screen_turn (Screen * const self, const Point point, const unsigned char color)
+void Screen_draw_point (Screen * const self, const Point point, const unsigned char color)
 {
-  //fprintf (stderr, "Screen_turn (%p, ..., %hhu):\n", self, color);
+  //fprintf (stderr, "Screen_draw_point (%p, ..., %hhu):\n", self, color);
   Point real;
   real.x = point.x*self->width;
   real.y = point.y*self->height;
@@ -119,16 +119,20 @@ void Screen_turn (Screen * const self, const Point point, const unsigned char co
 
 typedef struct Command
 {
-  char c;
-  double d;
-  char *aux;
+  char *command;
+  char *arg1;
+  char *arg2;
+  char *arg3;
+  char *arg4;
+  char *arg5;
 } Command;
 
 char *new_String (const char * const old)
 {
+  fprintf (stderr, "I'm inside new_String (%p);\n", old);
   if (old)
   {
-    size_t len = strlen (old);
+    const size_t len = strlen (old);
     char *ret = malloc (len+1);
     strcpy (ret, old);
     return ret;
@@ -140,48 +144,159 @@ char *new_String (const char * const old)
 
 char *String_append (char *self, const char c)
 {
-  size_t len = strlen (self);
+  size_t len = self?strlen(self):0;
   self = realloc (self, len+2);
+  if (!self)
+  {
+    fprintf (stderr, "String_append: realloc returned NULL.\n");
+    exit (EXIT_FAILURE);
+  }
   self[len] = c;
   ++len;
   self[len] = 0;
   return self;
 }
 
-Command *new_Command (const char *line)
+bool is_alphanumeric (const char c)
 {
-  //fprintf (stderr, "new_Command (%p):\n", line);
-  Command *self = malloc (sizeof(Command));
-  if (!self) return self;
-  self->c = 0;
-  self->d = NAN;
-  self->aux = NULL;
-  if (!line) return self;
-  if (*line)
+  fprintf (stderr, "I'm inside is_alphanumeric (%c);\n", c);
+  if ((c>=33)&&(c<=126)) return true;
+  return false;
+}
+
+char * sread_word (const char **line)
+{
+  printf ("I'm inside sread_word (%p).\n", line);
+  if (!line)
   {
-    while (*line && isspace(*line)) ++line;
-    self->c = *line;
-    if (!*line) return self;
-    ++line;
-    while (*line && isspace(*line)) ++line;
-    if (!*line) return self;
-    char * endptr;
-    self->d = strtod (line, &endptr);
-    if (line==endptr)
-    {
-      self->d = NAN, self->aux = new_String (line);
-      char * const p = strchr (self->aux, '\n');
-      if (p) *p = 0;
-    }
+    fprintf (stderr, "sread_word received a NULL argument.\n");
+    exit (EXIT_FAILURE);
   }
+  if (!*line)
+  {
+    fprintf (stderr, "sread_word: *line is NULL.\n");
+    exit (EXIT_FAILURE);
+  }
+  char *ret = new_String (0);
+  if (!ret)
+  {
+    fprintf (stderr, "sread_word: new_String failed.\n");
+    exit (EXIT_FAILURE);
+  }
+  if (!**line) return ret;
+  while (**line)
+  {
+    if ((' '==**line)||('\t'==**line)) ++*line;
+    else break;
+  }
+  if ((!**line)||('\n'==**line)||('\r'==**line)) return ret;
+  while (is_alphanumeric(**line))
+  {
+    ret = String_append (ret, **line);
+    ++*line;
+  }
+  return ret;
+}
+
+char *sread_phrase (const char *line)
+{
+  char *ret = new_String (0);
+  if (!ret)
+  {
+    fprintf (stderr, "sread_phrase: new_String(0) returned NULL.\n");
+    exit (EXIT_FAILURE);
+  }
+  if (!line) return ret;
+  while (!((*line=='\n')||(*line=='r')||(*line==0)))
+  {
+    ret = String_append (ret, *line);
+    if (!ret)
+    {
+      fprintf (stderr, "sread_phrase: String_append returned NULL.\n");
+      exit (EXIT_FAILURE);
+    }
+    ++line;
+  }
+  return ret;
+}
+
+Command *new_Command (const char * const line)
+{
+  fprintf (stderr, "new_Command (%p):\n", line);
+  Command *self = malloc (sizeof(Command));
+  if (!self)
+  {
+    fprintf (stderr, "new_Command: malloc failed.\n");
+    exit(EXIT_FAILURE);
+  }
+  self->command = NULL;
+  self->arg1 = NULL;
+  self->arg2 = NULL;
+  self->arg3 = NULL;
+  self->arg4 = NULL;
+  self->arg5 = NULL;
+  if (!line) return self;
+  const char *ptc;
+  ptc = line;
+  self->command = sread_word (&ptc);
+  if (*self->command)
+  {
+    printf ("self->command:%s\n",self->command);
+    if (!strcmp(self->command,"#"))
+    {
+      self->arg1 = sread_phrase (ptc+1);
+      return self;
+    }
+    self->arg1 = sread_word (&ptc);
+    if (*self->arg1)
+    {
+      self->arg2 = sread_word (&ptc);
+      if (*self->arg2)
+      {
+        self->arg3 = sread_word (&ptc);
+        if (*self->arg3)
+        {
+          self->arg4 = sread_word (&ptc);
+          if (*self->arg4)
+          {
+            self->arg5 = sread_word (&ptc);
+            if (*self->arg5)
+            {
+              return self;
+            }
+            free (self->arg5);
+            self->arg5 = NULL;
+            return self;
+          }
+          free (self->arg4);
+          self->arg4 = NULL;
+          return self;
+        }
+        free (self->arg3);
+        self->arg3 = NULL;
+        return self;
+      }
+      free (self->arg2);
+      self->arg2 = NULL;
+      return self;
+    }
+    free (self->arg1);
+    self->arg1 = NULL;
+    return self;
+  }
+  free (self->command);
+  self->command = NULL;
   return self;
 }
 
 void Command_print (const Command * const self, FILE * const f)
 {
-  fprintf (f, "Command %c", self->c);
-  if (!isnan(self->d)) fprintf (f, " %lf", self->d);
-  else if (self->aux) fprintf (f, " %s", self->aux);
+  fprintf (f, "Command %s", self->command);
+  if (self->arg1) fprintf (f, " %s", self->arg1);
+  if (self->arg2) fprintf (f, " %s", self->arg2);
+  if (self->arg3) fprintf (f, " %s", self->arg3);
+  if (self->arg4) fprintf (f, " %s", self->arg4);
+  if (self->arg5) fprintf (f, " %s", self->arg5);
   fprintf (f, "\n");
 }
 
@@ -208,7 +323,7 @@ Vector *new_Vector (void)
 
 void Vector_append (Vector * const self, const void * const p)
 {
-  //fprintf (stderr, "Vector_append (%p, %p):\n", self, p);
+  fprintf (stderr, "Vector_append (%p, %p):\n", self, p);
   size_t n = self->n;
   void ** const newarray = realloc (self->array, (n+1)*sizeof(p));
   if (!newarray) {perror ("Vector_append"); abort();}
@@ -244,8 +359,8 @@ Vector *readCode (FILE *f)
     }
     //printf ("%s\n", line);
     Command * const command = new_Command (line);
-    //printf ("readCode: I read the command:\n");
-    //Command_print (command, stdout);
+    printf ("readCode: I read the command:\n");
+    Command_print (command, stdout);
     Vector_append (code, command);
   }
   return code;
@@ -309,7 +424,7 @@ void Turtle_print (Turtle *self, FILE *f)
 void Turtle_penDown (Turtle * const self)
 {
     self->drawing = true;
-    Screen_turn (&self->screen, self->position, self->color);
+    Screen_draw_point (&self->screen, self->position, self->color);
 }
 
 //size_t forwards = 0;
@@ -324,7 +439,7 @@ void Turtle_forward (Turtle * const self, double distance)
     self->position.x += (cos(self->angle)*self->step_length);
     self->position.y += (sin(self->angle)*self->step_length);
     //fprintf (stderr, "distance = %lf\tx = %lf\ty = %lf\n", distance, self->position.x, self->position.y);
-    if (self->drawing) Screen_turn (&self->screen, self->position, self->color);
+    if (self->drawing) Screen_draw_point (&self->screen, self->position, self->color);
     distance -= self->step_length;
   }
 }
@@ -333,7 +448,7 @@ void Turtle_forward (Turtle * const self, double distance)
 
 void Turtle_executeCode (Turtle * const self, Vector * const code)
 {
-  //fprintf (stderr, "Turtle_executeCode (%p, %p):\n", self, code);
+  fprintf (stderr, "Turtle_executeCode (%p, %p):\n", self, code);
   Vector *stack = new_Vector();
   long int index = -1;
   while (1)
@@ -344,50 +459,60 @@ void Turtle_executeCode (Turtle * const self, Vector * const code)
     if (index == code->n) return;
     //fprintf (stderr, "index = %ld\n", index);
     const Command * const command = code->array [index];
-    //Command_print (command, stderr);
-    if (command->c == 'A')
+    Command_print (command, stderr);
+    fprintf (stderr, "command = %p\n", command);
+    if (!command->command) continue;
+    if (0==strcasecmp(command->command,"A"))
     {
-      self->angle = d2r(command->d);
+      self->angle = d2r(atof(command->arg1));
       continue;
     }
-    if (command->c == 'X')
+    if (0==strcasecmp(command->command,"X"))
     {
-      self->position.x = command->d;
+      if (command->arg1)
+      {
+        self->position.x = atof(command->arg1);
+      }
+      else
+      {
+        fprintf (stderr, "Command X was found without its argument.\n");
+        exit (EXIT_FAILURE);
+      }
       continue;
     }
-    if (command->c == 'Y')
+    if (0==strcasecmp(command->command,"Y"))
     {
-      self->position.y = command->d;
+      self->position.y = atof(command->arg1);
       continue;
     }
-    if (command->c == 'F')
+    if (0==strcasecmp(command->command,"F"))
     {
-      Turtle_forward (self, command->d);
+      Turtle_forward (self, atof(command->arg1));
       continue;
     }
-    if (command->c == 'T')
+    if (0==strcasecmp(command->command,"T"))
     {
       //fprintf (stderr, "old angle = %lf radians\n", self->angle);
-      self->angle += d2r (command->d);
+      self->angle += d2r (atof(command->arg1));
       //fprintf (stderr, "new angle = %lf radians\n", self->angle);
       continue;
     }
-    if (command->c == 'U')
+    if (0==strcasecmp(command->command,"U"))
     {
       self->drawing = false;
       continue;
     }
-    if (command->c == 'D')
+    if (0==strcasecmp(command->command,"D"))
     {
       Turtle_penDown (self);
       continue;
     }
-    if (command->c == 'R')
+    if (0==strcasecmp(command->command,"R"))
     {
-      Vector_append (stack, new_Frame (index, command->d));
+      Vector_append (stack, new_Frame (index, atol(command->arg1)));
       continue;
     }
-    if (command->c == 'E')
+    if (0==strcasecmp(command->command,"E"))
     {
       if (stack->n == 0)
       {
@@ -405,21 +530,23 @@ void Turtle_executeCode (Turtle * const self, Vector * const code)
         continue;
       }
     }
-    if (command->c == 'C')
+    if (0==strcasecmp(command->command,"C"))
     {
-      self->color = command->d;
+      self->color = atoi(command->arg1);
       continue;
     }
-    if (command->c == '#')
+    if (0==strcasecmp(command->command,"#"))
     {
       if (self->screen.pgm->comment == default_comment)
-          self->screen.pgm->comment = command->aux;
+      {
+        self->screen.pgm->comment = command->arg1;
+      }
       continue;
     }
-    if (command->c == 'P')
+    if (0==strcasecmp(command->command,"P"))
     {
       fprintf (stderr, "The usage of the command P is deprecated.\n");
-      self->step_length = command->d;
+      self->step_length = atof(command->arg1);
       if (self->step_length <=0)
       {
         fprintf (stderr, "At line %lu: The step_length must be greater than 0.\n", index+1);
@@ -427,7 +554,7 @@ void Turtle_executeCode (Turtle * const self, Vector * const code)
       }
       continue;
     }
-    if (command->c == 'B')
+    if (strcasecmp(command->command,"B"))
     {
       Turtle_print (self, stdout);
       continue;
