@@ -1,0 +1,9 @@
+# Pentagon.tg - Tests empty lines.
+
+R 5
+
+F 0.1
+
+T 72
+
+E
