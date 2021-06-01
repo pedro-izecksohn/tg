@@ -1,6 +1,6 @@
 // tg.c - old tg.py - A simple Turtle Graphics that exports a PGM.
 // By: Pedro Izecksohn
-// Version: 2021/May/27 17:33
+// Version: 2021/Jun/01 14:17
 // License:
 // 1) This software while in source code format may be freely distributed.
 //    To be able to distribute this software in executable format you must buy a commercial license from Pedro Izecksohn.
@@ -29,13 +29,14 @@ typedef struct PGM
 
 const char * const default_comment = "";
 
+// On error exits with failure.
 PGM *new_PGM (const unsigned int width, const unsigned int height, const unsigned char background_color)
 {
   PGM *ret = malloc (sizeof(PGM));
   if (!ret)
   {
     fprintf (stderr, "Inside new_PGM: malloc returned NULL.\n");
-    return ret;
+    exit (EXIT_FAILURE);
   }
   ret->width = width;
   ret->height = height;
@@ -43,8 +44,7 @@ PGM *new_PGM (const unsigned int width, const unsigned int height, const unsigne
   if (!ret->ba)
   {
     fprintf (stderr, "Inside new_PGM: ret->ba could not be allocated: malloc returned NULL.\n");
-    free (ret);
-    return NULL;
+    exit (EXIT_FAILURE);
   }
   unsigned int y = 0;
   for (; y<height; ++y)
@@ -86,24 +86,25 @@ typedef struct Screen
   PGM *pgm;
 } Screen;
 
+// On error exits with EXIT_FAILURE.
 Screen *new_Screen (unsigned int width, unsigned int height, unsigned char background_color)
 {
   Screen *ret = malloc (sizeof(Screen));
   if (!ret)
   {
     fprintf (stderr, "Inside new_Screen: malloc returned NULL.\n");
-    return ret;
+    exit(EXIT_FAILURE);
   }
   ret->width = width;
   ret->height = height;
   ret->background_color = background_color;
   ret->pgm = new_PGM (width, height, background_color);
-  if (!ret->pgm)
+  /*if (!ret->pgm)
   {
     fprintf (stderr, "Inside new_Screen: new_PGM returned NULL.\n");
     free (ret);
     return NULL;
-  }
+  }*/
   return ret;
 }
 
